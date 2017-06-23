@@ -1,0 +1,26 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+
+    "settings": {
+        "todoreview": {
+            "exclude_folders": [
+                "*.git*",
+                "pl"
+            ]
+        }
+    },
+
+    "build_systems": [
+        {
+            "working_dir": "${project_path}",
+            "name": "build and run project with love",
+            "cmd": ["love", "."],
+            "shell": "true"
+        }
+    ]
+}
