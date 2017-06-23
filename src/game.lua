@@ -4,9 +4,32 @@
 local nk = require "nuklear"
 local Camera = require "hump.camera"
 
+local utils = require "utils"
 local worldmap = require "worldmap"
 
 local game = {}
+
+
+do
+	local scriptFolder = "mod/scripts"
+
+	function game:loadScripts()
+		local scripts = {}
+		local files = utils.recursiveFind("%.lua$", scriptFolder)
+		table.sort(files)
+
+		for i, file in ipairs(files) do
+			local name = file:match(".*/([^/]+%.lua)$")
+			local contents, size = love.filesystem.read(file)
+
+			print(name, file)
+
+			table.insert(scripts, { name = name, script = contents })
+		end
+
+		self.scripts = scripts
+	end
+end
 
 function game:init()
 	self.gui = { -- load GUI resources here, rest will be initialized on enter
@@ -19,6 +42,8 @@ function game:init()
 	worldmap.init()
 
 	self.camera = Camera(0, 0)
+
+	self:loadScripts()
 end
 
 function game:clearGUI()
@@ -26,6 +51,7 @@ function game:clearGUI()
 	-- use :resetUI() for complete reload
 	self.gui.log = {}
 	self.gui.region_list_filter = { value = '' }
+	self.gui.editors = {}
 
 	if self.gui.selected_region then
 		self.gui.selected_region.style.fill = nil
@@ -36,6 +62,34 @@ end
 
 function game:enter(previous, ...)
 	self:clearGUI()
+
+	self.nodes = {
+		{
+			name = "node1",
+			cpu = { freq = 1300, cores = 2 },
+			sockets = {
+				{
+					name = "eth0",
+					type = "ethernet",
+					speed = 100
+				},
+				{
+					name = "wlan0",
+					type = "wlan",
+					speed = 10
+				}
+			},
+			scriptable = true,
+			script = ''
+		}
+	}
+
+	self.gui.editors = {
+		{
+			target = self.nodes[1],
+			value = ""
+		}
+	}
 
 	nk.init()
 	nk.stylePush {
@@ -107,6 +161,47 @@ function game:uiRegionList()
 	nk.windowEnd()
 end
 
+function game:uiEditors()	
+	local cw, ch = love.graphics.getDimensions()
+	local ww, wh, wp = 300,400, 12
+
+	for i, editor in ipairs(self.gui.editors) do
+		if nk.windowBegin(string.format('EDIT %s.script', editor.target.name),
+		                   wp,wp, ww,wh,
+		                   'border', 'title', 'movable', 'closable') then
+			nk.layoutRow('dynamic', 24, 1)
+
+			if nk.comboboxBegin('SCRIPTS') then
+				nk.layoutRow('dynamic', 24, 1)
+				for j, script in ipairs(self.scripts) do
+					if nk.comboboxItem(script.name) then
+						editor.value = script.script
+					end
+				end
+
+				nk.comboboxEnd()
+			end
+
+			nk.layoutRow('dynamic', wh - 98, 1)
+
+			nk.edit('box', editor)
+
+			nk.layoutRow('dynamic', 24, 1)
+			if nk.button('SAVE') then
+				editor.target.script = editor.value
+				editor.close = true
+			end
+		else
+			editor.close = true
+		end
+		nk.windowEnd()
+	end
+
+	-- remove closed editors
+	self.gui.editors = utils.ifilter(self.gui.editors, function (v) return not v.close end )
+
+end
+
 function game:update(dt)
 	-- make sure the world is in the screen
 	do
@@ -125,6 +220,7 @@ function game:update(dt)
 
 	self:uiRegionList()
 	self:uiOutput()
+	self:uiEditors()
 
 	nk.frameEnd()
 end
