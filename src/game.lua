@@ -6,29 +6,59 @@ local Camera = require "hump.camera"
 
 local utils = require "utils"
 local worldmap = require "worldmap"
+local templar = require "templar"
 
 local game = {}
 
+local scriptFolder = "mod/scripts"
+local nodeFolder = "mod/nodes"
 
-do
-	local scriptFolder = "mod/scripts"
+function game:loadScripts()
+	local scripts = {}
+	local files = utils.recursiveFind("%.lua$", scriptFolder)
+	table.sort(files)
 
-	function game:loadScripts()
-		local scripts = {}
-		local files = utils.recursiveFind("%.lua$", scriptFolder)
-		table.sort(files)
+	for i, file in ipairs(files) do
+		local name = file:match(".*/([^/]+%.lua)$")
+		local contents, size = love.filesystem.read(file)
 
-		for i, file in ipairs(files) do
-			local name = file:match(".*/([^/]+%.lua)$")
-			local contents, size = love.filesystem.read(file)
+		print(name, file)
 
-			print(name, file)
-
-			table.insert(scripts, { name = name, script = contents })
-		end
-
-		self.scripts = scripts
+		table.insert(scripts, { name = name, script = contents })
 	end
+
+	self.scripts = scripts
+end
+
+function game:loadNodes()
+	local nodeGenerators = {}
+	local files = utils.recursiveFind("%.lua$", nodeFolder)
+	-- table.sort(files)
+
+	-- TODO: move to a different file
+	templar.registerGenerator("devicename", function ()
+		return function ()
+			-- TODO: compile a list of common names (first + last),
+			--       and use that list to generate the names
+
+			return string.format("node%04d", love.math.random(1, 9999))
+		end
+	end)
+	templar.registerGenerator("uuid", function ()
+		return function () return utils.uuid() end
+	end)
+
+	for i, file in ipairs(files) do
+		local name = file:match(".*/([^/]+)%.lua$")
+		local chunk = assert(love.filesystem.load(file))
+
+		print(name, file)
+
+		local generator = templar.generator(chunk)
+		nodeGenerators[name] = generator
+	end
+
+	self.nodeGenerators = nodeGenerators
 end
 
 function game:init()
@@ -44,14 +74,18 @@ function game:init()
 	self.camera = Camera(0, 0)
 
 	self:loadScripts()
+	self:loadNodes()
 end
 
-function game:clearGUI()
+function game:clearUI()
 	-- manually reset everything but loaded resources,
 	-- use :resetUI() for complete reload
 	self.gui.log = {}
 	self.gui.region_list_filter = { value = '' }
+	self.gui.node_list_filter = { value = '' }
 	self.gui.editors = {}
+	self.gui.nodes = {}
+	self.gui.wires = {}
 
 	if self.gui.selected_region then
 		self.gui.selected_region.style.fill = nil
@@ -61,38 +95,20 @@ function game:clearGUI()
 end
 
 function game:enter(previous, ...)
-	self:clearGUI()
+	self:clearUI()
 
-	self.nodes = {
-		{
-			name = "node1",
-			cpu = { freq = 1300, cores = 2 },
-			sockets = {
-				{
-					name = "eth0",
-					type = "ethernet",
-					speed = 100
-				},
-				{
-					name = "wlan0",
-					type = "wlan",
-					speed = 10
-				}
-			},
-			scriptable = true,
-			script = ''
-		}
-	}
-
-	self.gui.editors = {
-		{
-			target = self.nodes[1],
-			value = ""
-		}
-	}
+	-- TODO: this is for debugging
+	local nodes = {}
+	for i = 1, 4 do
+		table.insert(nodes, self.nodeGenerators["pc"]())
+	end
+	local inspect = require "inspect"
+	local success = love.filesystem.write("nodes.lua", inspect(nodes))
+	self.nodes = nodes
+	-- ends here
 
 	nk.init()
-	nk.stylePush {
+	nk.stylePush { -- TODO: make a style (load from mod/?)
 		['font'] = self.gui.fonts.medium,
 	}
 end
@@ -107,7 +123,7 @@ end
 
 function game:uiOutput()
 	local cw, ch = love.graphics.getDimensions()
-	local ww, wh, wp = 400,300, 12
+	local ww, wh, wp = 400,300, 6
 	if nk.windowBegin('OUTPUT',
 	                           (cw - ww - wp),(ch - wh - wp), ww,wh,
 	                           'border', 'title', 'movable', 'scalable',
@@ -123,7 +139,7 @@ end
 
 function game:uiRegionList()
 	local cw, ch = love.graphics.getDimensions()
-	local ww, wh, wp = 150,300, 12
+	local ww, wh, wp = 150,300, 6
 
 	if nk.windowBegin('REGIONS',
 	                           wp,wp, ww,wh,
@@ -161,12 +177,52 @@ function game:uiRegionList()
 	nk.windowEnd()
 end
 
+
+function game:uiNodeList()
+	local cw, ch = love.graphics.getDimensions()
+	local ww, wh, wp = 150,300, 6
+
+	if nk.windowBegin('NODES',
+	                           wp,300 + wp * 3, ww,wh,
+	                           'border', 'title', 'movable') then
+		nk.layoutRow('dynamic', 24, 1)
+		nk.edit('field', self.gui.node_list_filter)
+
+		nk.layoutRow('dynamic', wh - 28*2, 1)
+		nk.groupBegin('node list', 'scrollbar')
+		do
+			nk.layoutRow('dynamic', 24, 1)
+
+			for i, node in ipairs(self.nodes) do
+				if string.match(node.name,
+				                self.gui.node_list_filter.value ) then
+					if nk.button(node.name, self.gui.nodes[node] and "circle solid" or nil) then
+						if not self.gui.nodes[node] then
+							self.camera:lookAt(node.position.x, node.position.y)
+							table.insert(self.gui.nodes, node)
+							self.gui.nodes[node] = true
+						else
+							utils.ifilter(self.gui.nodes, function (v)
+								return v ~= node
+							end)
+
+							self.gui.nodes[node] = nil
+						end
+					end
+				end
+			end
+		end
+		nk.groupEnd()
+	end
+	nk.windowEnd()
+end
+
 function game:uiEditors()	
 	local cw, ch = love.graphics.getDimensions()
-	local ww, wh, wp = 300,400, 12
+	local ww, wh, wp = 300,400, 6
 
 	for i, editor in ipairs(self.gui.editors) do
-		if nk.windowBegin(string.format('EDIT %s.script', editor.target.name),
+		if nk.windowBegin(editor.uuid, string.format('EDIT %s.script', editor.target.name),
 		                   wp,wp, ww,wh,
 		                   'border', 'title', 'movable', 'closable') then
 			nk.layoutRow('dynamic', 24, 1)
@@ -179,11 +235,11 @@ function game:uiEditors()
 					end
 				end
 
-				nk.comboboxEnd()
 			end
 
-			nk.layoutRow('dynamic', wh - 98, 1)
+				nk.comboboxEnd()
 
+			nk.layoutRow('dynamic', wh - 98, 1)
 			nk.edit('box', editor)
 
 			nk.layoutRow('dynamic', 24, 1)
@@ -198,8 +254,130 @@ function game:uiEditors()
 	end
 
 	-- remove closed editors
-	self.gui.editors = utils.ifilter(self.gui.editors, function (v) return not v.close end )
+	self.gui.editors = utils.ifilter(self.gui.editors, function (v)
+			if v.close then 
+				self.gui.editors[v.target] = false
+			end
+			return not v.close
+		end )
 
+end
+
+do
+	local function calculate_height(node)
+		return 64 + (node.cpu and 28 or 0) + (node.scriptable and 28  * 2 or 0) + #node.sockets * 28
+	end
+
+	function game:uiNodes()
+		local cx, cy = self.camera:position()
+		local cw, ch = love.graphics.getDimensions()
+		local cs = self.camera.scale
+
+		self.gui.wires = {}
+		if self.gui.new_wire then self.gui.new_wire.hover = nil end
+
+		if not self.gui.nodes then return end
+
+		for i, node in ipairs(self.gui.nodes) do
+			if nk.windowBegin(node.uuid, node.name,
+			                  node.position.x - (cx - cw/2), node.position.y - (cy - ch/2),
+			                  200, calculate_height(node),
+			                  'border', 'title') then
+				nk.windowSetPosition(
+					(node.position.x - cx) * cs + cw/2,
+					(node.position.y - cy) * cs + ch/2)
+
+				nk.layoutRow('dynamic', 24, 1)
+
+				if node.cpu then
+					nk.label(string.format('CPU: %.1fGHz %d cores', node.cpu.freq/1000, node.cpu.cores))
+				end
+
+				if node.scriptable then
+					if nk.button('EDIT SCRIPT') and not self.gui.editors[node] then
+						table.insert(self.gui.editors, {
+							target = node,
+							value = node.script or "",
+							uuid = utils.uuid()
+						})
+						self.gui.editors[node] = true
+					end
+
+					if not node.running then
+						if nk.button('RUN SCRIPT') then
+						end
+					else
+						if nk.button('KILL SCRIPT') then
+						end
+					end
+				end
+
+				nk.label 'SOCKETS'
+				for j, socket in ipairs(node.sockets) do
+					if self.gui.new_wire and (self.gui.new_wire.start.socket == socket) then
+						nk.styleSetFont(self.gui.fonts.bold)
+					end
+
+					if self.gui.new_wire then
+						if (self.gui.new_wire.start.socket == socket) then
+							self.gui.wires[socket] = { nk.widgetBounds() }
+						else
+							if nk.widgetIsHovered() then
+								if socket.type == self.gui.new_wire.start.socket.type then
+									self.gui.new_wire.hover = 'valid'
+								else
+									self.gui.new_wire.hover = 'invalid'
+								end
+							end
+						end
+					end
+
+					if socket.connected then
+						if not self.gui.wires[socket] then
+							self.gui.wires[socket] = { nk.widgetBounds() }
+						end
+
+						if self.gui.wires[socket.connected.socket] then
+							self.gui.wires[#self.gui.wires + 1] = {
+								self.gui.wires[socket],
+								self.gui.wires[socket.connected.socket],
+								start_node = node,
+								end_node = socket.connected.node,
+							}
+						end
+					end
+					local label = socket.name
+					if socket.connected then
+						label = label .. ' <' .. socket.connected.node.name .. '-' .. socket.connected.socket.name .. '>'
+					end
+					if nk.button(label, socket.connected and 'circle solid' or 'circle outline') then
+						if socket.connected then
+							socket.connected.socket.connected = nil
+							socket.connected = nil
+						elseif self.gui.new_wire then
+							if (self.gui.new_wire.start.socket ~= socket) and (self.gui.new_wire.start.socket.type == socket.type) then
+								socket.connected = self.gui.new_wire.start
+								self.gui.new_wire.start.socket.connected = {
+									socket = socket,
+									node = node }
+							end
+							self.gui.new_wire = nil
+						else
+						    self.gui.new_wire = {
+						    	start = {
+						    		socket = socket,
+						    		node = node } }
+
+							self.gui.wires[socket] = { nk.widgetBounds() }
+						end
+					end
+					nk.styleSetFont(self.gui.fonts.medium)
+				end
+			end
+
+			nk.windowEnd()
+		end
+	end
 end
 
 function game:update(dt)
@@ -219,17 +397,78 @@ function game:update(dt)
 	nk.frameBegin()
 
 	self:uiRegionList()
+	self:uiNodeList()
 	self:uiOutput()
 	self:uiEditors()
+	self:uiNodes()
 
 	nk.frameEnd()
+end
+
+function game:drawWires()
+	local old_join = love.graphics.getLineJoin()
+	love.graphics.setLineJoin("none")
+
+	for i, wire in ipairs(self.gui.wires) do
+		love.graphics.line(
+			wire[1][1],
+			wire[1][2] + wire[1][4] / 2,
+			wire[1][1] - 24,
+			wire[1][2] + wire[1][4] / 2,
+			wire[2][1] - 24,
+			wire[2][2] + wire[2][4] / 2,
+			wire[2][1],
+			wire[2][2] + wire[2][4] / 2
+			)
+	end
+
+
+	love.graphics.setLineJoin(old_join)
+end
+
+function game:drawNewWire()
+	local old_join = love.graphics.getLineJoin()
+	love.graphics.setLineJoin("none")
+
+	if self.gui.new_wire then
+		if not self.gui.new_wire.hover then
+			love.graphics.setColor(0, 255, 255, 255)
+		elseif self.gui.new_wire.hover == 'invalid' then
+			love.graphics.setColor(255, 0, 0, 255)
+		elseif self.gui.new_wire.hover == 'valid' then
+			love.graphics.setColor(0, 255, 0, 255)
+		end
+
+		local mx, my = love.mouse.getPosition()
+		local wb = self.gui.wires[self.gui.new_wire.start.socket]
+		love.graphics.line(wb[1] + 18, wb[2] + wb[4] / 2 , mx, my)
+		love.graphics.setColor(255, 255, 255, 255)
+	end
+
+	love.graphics.setLineJoin(old_join)
+end
+
+function game:drawNodes()
+	love.graphics.setColor(0, 255, 255, 200)
+
+	for i, node in ipairs(self.nodes) do
+		love.graphics.circle("fill",
+			node.position.x, node.position.y,
+			4, 32)
+	end
+
+	love.graphics.setColor(255, 255, 255, 255)
 end
 
 function game:draw()
 	self.camera:attach()
 		worldmap.draw()
+		self:drawNodes()
 	self.camera:detach()
+
 	nk.draw()
+	self:drawWires()
+	self:drawNewWire()
 end
 
 function game:focus()

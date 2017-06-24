@@ -3,7 +3,14 @@
 -- pc's
 return {
 	type = "pc",
+	name = devicename(),
+	uuid = uuid(),
 	scriptable = true,
+
+	position = {
+		x = range(1, 1000, 10),
+		y = range(1, 500, 10)
+	}, -- TODO: place to regions
 
 	sockets = extend(
 		amount(1, 4, function ()
@@ -23,10 +30,10 @@ return {
 		amount(1, 3, function ()
 			return {
 				type = "usb",
-				speed = choice(1),
+				speed = 1,
 				name = "usb" .. index()
 			} end
-		),
+		)
 	),
 
 	cpu = {

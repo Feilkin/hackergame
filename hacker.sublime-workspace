@@ -4,8 +4,16 @@
 		"selected_items":
 		[
 			[
-				"file",
-				"love.filesystem.getDirectoryItems"
+				"lgdi",
+				"love.graphics.getDimensions"
+			],
+			[
+				"setline",
+				"love.graphics.setLineJoin"
+			],
+			[
+				"loverand",
+				"love.math.random"
 			],
 			[
 				"selected",
@@ -18,10 +26,6 @@
 			[
 				"last_c",
 				"last_cy"
-			],
-			[
-				"setline",
-				"love.graphics.setLineWidth"
 			],
 			[
 				"ARG_",
@@ -492,25 +496,24 @@
 			"file": "src/game.lua",
 			"settings":
 			{
-				"buffer_size": 6218,
+				"buffer_size": 13060,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "src/node.lua",
+			"file": "/C/Users/feikki/AppData/Roaming/LOVE/hacker game 2017/nodes.lua",
 			"settings":
 			{
-				"buffer_size": 554,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
+				"buffer_size": 2221,
+				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "src/nodes/pc.lua",
+			"file": "src/templar.lua",
 			"settings":
 			{
-				"buffer_size": 595,
+				"buffer_size": 2256,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -519,26 +522,34 @@
 			"file": "src/utils.lua",
 			"settings":
 			{
-				"buffer_size": 1235,
+				"buffer_size": 1206,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "mod/scripts/helloworld.lua",
-			"settings":
-			{
-				"buffer_size": 53,
-				"encoding": "UTF-8",
-				"line_ending": "Windows",
-				"name": "for i = 1, 10 do"
 			}
 		},
 		{
 			"file": "src/worldmap.lua",
 			"settings":
 			{
-				"buffer_size": 1709,
+				"buffer_size": 1811,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "lib/lovesvg.lua",
+			"settings":
+			{
+				"buffer_size": 14522,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "src/splash.lua",
+			"settings":
+			{
+				"buffer_size": 1032,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -551,6 +562,25 @@
 				"encoding": "UTF-8",
 				"line_ending": "Windows",
 				"name": "function love.conf(t)"
+			}
+		},
+		{
+			"contents": "// Friday 06/23/17 at 03:39PM - 40 files in 0.62 secs\n\n## TODO (5)\n1. hacker/main.lua:7     require game here?\n2. lib/lovesvg.lua:4     url\n3. lib/lovesvg.lua:122   is this the best way to do this??\n4. lib/lovesvg.lua:386   figure out a better way to do numbers\n5. lib/lovesvg.lua:566   description\n",
+			"settings":
+			{
+				"buffer_size": 299,
+				"line_ending": "Windows",
+				"name": "TodoReview",
+				"scratch": true
+			}
+		},
+		{
+			"file": "mod/nodes/pc.lua",
+			"settings":
+			{
+				"buffer_size": 719,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
 			}
 		}
 	],
@@ -589,14 +619,10 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 203.0,
-		"last_filter": "install",
+		"height": 400.0,
+		"last_filter": "todo",
 		"selected_items":
 		[
-			[
-				"install",
-				"Package Control: Install Package"
-			],
 			[
 				"todo",
 				"TodoReview: Project Files"
@@ -604,6 +630,10 @@
 			[
 				"remove",
 				"Package Control: Remove Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
 			],
 			[
 				"json",
@@ -662,7 +692,7 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 864.0
+		"width": 408.0
 	},
 	"console":
 	{
@@ -683,18 +713,20 @@
 	},
 	"expanded_folders":
 	[
-		"/C/Users/aatu/OneDrive/Tiedostot/GitHub/hackergame",
-		"/C/Users/aatu/OneDrive/Tiedostot/GitHub/hackergame/mod",
-		"/C/Users/aatu/OneDrive/Tiedostot/GitHub/hackergame/mod/scripts",
-		"/C/Users/aatu/OneDrive/Tiedostot/GitHub/hackergame/src",
-		"/C/Users/aatu/OneDrive/Tiedostot/GitHub/hackergame/src/nodes"
+		"/E/work/git/hacker",
+		"/E/work/git/hacker/lib",
+		"/E/work/git/hacker/mod",
+		"/E/work/git/hacker/mod/nodes",
+		"/E/work/git/hacker/mod/scripts",
+		"/E/work/git/hacker/res",
+		"/E/work/git/hacker/src"
 	],
 	"file_history":
 	[
-		"/C/Users/aatu/OneDrive/Tiedostot/love/hacklink/main.lua",
-		"/C/Users/aatu/OneDrive/Tiedostot/GitHub/hackergame/src/splash.lua",
-		"/C/Users/aatu/OneDrive/Tiedostot/GitHub/hackergame/lib/lovesvg.lua",
 		"/C/Users/feikki/OneDrive/Tiedostot/love/hacklink/main.lua",
+		"/C/Users/feikki/AppData/Roaming/LOVE/hacker game 2017/nodes.lua",
+		"/E/work/git/hacker/src/node.lua",
+		"/E/work/git/hacker/src/nodes/pc.lua",
 		"/E/work/git/hacker/hacker.sublime-project",
 		"/E/work/git/cyberpunk/cyberpunk.sublime-project",
 		"/E/work/git/hacker/main_old.lua",
@@ -822,7 +854,7 @@
 	],
 	"find":
 	{
-		"height": 70.0
+		"height": 39.0
 	},
 	"find_in_files":
 	{
@@ -837,8 +869,18 @@
 		"case_sensitive": false,
 		"find_history":
 		[
-			"windowend",
+			"gui.wires",
+			"fill",
+			"self.gui.nodes",
+			"windowBegin",
+			"wire[1][1]",
+			"wires",
+			"gui.editors",
+			"nk.windowBegin",
+			"editors",
+			"uiEdito",
 			"editor",
+			"node_generators",
 			"uiregionlist",
 			"keypressed",
 			"woldmap",
@@ -954,17 +996,7 @@
 			"apartment_form",
 			"new_apartment",
 			"apartment_form",
-			"Apartment",
-			"apartment",
-			"detail",
-			"firstBillModalLabel",
-			"send_mail",
-			"checkbox",
-			"bill",
-			"transfertax",
-			"asiakas",
-			"name",
-			"today"
+			"Apartment"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -983,7 +1015,7 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -999,14 +1031,136 @@
 						"selection":
 						[
 							[
-								164,
-								164
+								22,
+								22
 							]
 						],
 						"settings":
 						{
+							"git_gutter_is_enabled": true,
 							"open_with_edit": true,
 							"syntax": "Packages/Lua/Lua.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/game.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 13060,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								10360,
+								10358
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"open_with_edit": true,
+							"syntax": "Packages/Lua/Lua.sublime-syntax",
+							"word_wrap": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 7670.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/C/Users/feikki/AppData/Roaming/LOVE/hacker game 2017/nodes.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2221,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2,
+								2
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "src/templar.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2256,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1309,
+								1309
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"open_with_edit": true,
+							"syntax": "Packages/Lua/Lua.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 855.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "src/utils.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1206,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								56,
+								56
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/Lua/Lua.sublime-syntax",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -1016,179 +1170,91 @@
 					"type": "text"
 				},
 				{
-					"buffer": 1,
-					"file": "src/game.lua",
+					"buffer": 5,
+					"file": "src/worldmap.lua",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6218,
+						"buffer_size": 1811,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								21,
-								21
+								1399,
+								1400
 							]
 						],
 						"settings":
 						{
+							"git_gutter_is_enabled": true,
 							"open_with_edit": true,
-							"syntax": "Packages/Lua/Lua.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": -0.0,
-						"translation.y": 1417.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "src/node.lua",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 554,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								164,
-								164
-							]
-						],
-						"settings":
-						{
-							"open_with_edit": true,
-							"syntax": "Packages/SublimeLove/Love.tmLanguage"
+							"syntax": "Packages/Lua/Lua.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "src/nodes/pc.lua",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 595,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								595,
-								595
-							]
-						],
-						"settings":
-						{
-							"open_with_edit": true,
-							"syntax": "Packages/SublimeLove/Love.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "src/utils.lua",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1235,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1214,
-								1212
-							]
-						],
-						"settings":
-						{
-							"open_with_edit": true,
-							"syntax": "Packages/SublimeLove/Love.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 1013.0,
+						"translation.y": 680.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 3,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
-					"file": "mod/scripts/helloworld.lua",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 53,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								16,
-								16
-							]
-						],
-						"settings":
-						{
-							"auto_name": "for i = 1, 10 do",
-							"syntax": "Packages/SublimeLove/Love.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
 					"buffer": 6,
-					"file": "src/worldmap.lua",
+					"file": "lib/lovesvg.lua",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1709,
+						"buffer_size": 14522,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1589,
-								1589
+								5607,
+								5609
 							]
 						],
 						"settings":
 						{
-							"open_with_edit": true,
 							"syntax": "Packages/Lua/Lua.sublime-syntax",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 684.0,
+						"translation.y": 3896.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "src/splash.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1032,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								37,
+								37
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 19.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
 					"type": "text"
 				}
 			]
@@ -1198,7 +1264,7 @@
 			"sheets":
 			[
 				{
-					"buffer": 7,
+					"buffer": 8,
 					"file": "conf.lua",
 					"semi_transient": false,
 					"settings":
@@ -1210,13 +1276,14 @@
 						"selection":
 						[
 							[
-								2536,
-								2536
+								1748,
+								1748
 							]
 						],
 						"settings":
 						{
 							"auto_name": "function love.conf(t)",
+							"git_gutter_is_enabled": true,
 							"syntax": "Packages/Lua/Lua.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true,
@@ -1226,7 +1293,124 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 299,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								99,
+								99
+							]
+						],
+						"settings":
+						{
+							"default_dir": "E:\\work\\git\\hacker",
+							"line_padding_bottom": 2,
+							"line_padding_top": 2,
+							"review_args":
+							{
+								"settings":
+								{
+									"exclude_folders":
+									[
+										"*.git*",
+										"pl"
+									]
+								}
+							},
+							"review_results":
+							{
+								"111,140":
+								{
+									"file": "E:\\work\\git\\hacker\\lib\\lovesvg.lua",
+									"line": 4,
+									"note": "url",
+									"patt": "todo",
+									"priority": 100
+								},
+								"140,199":
+								{
+									"file": "E:\\work\\git\\hacker\\lib\\lovesvg.lua",
+									"line": 122,
+									"note": "is this the best way to do this??",
+									"patt": "todo",
+									"priority": 100
+								},
+								"199,262":
+								{
+									"file": "E:\\work\\git\\hacker\\lib\\lovesvg.lua",
+									"line": 386,
+									"note": "figure out a better way to do numbers",
+									"patt": "todo",
+									"priority": 100
+								},
+								"262,299":
+								{
+									"file": "E:\\work\\git\\hacker\\lib\\lovesvg.lua",
+									"line": 566,
+									"note": "description",
+									"patt": "todo",
+									"priority": 100
+								},
+								"67,111":
+								{
+									"file": "E:\\work\\git\\hacker\\main.lua",
+									"line": 7,
+									"note": "require game here?",
+									"patt": "todo",
+									"priority": 100
+								}
+							},
+							"selected_result": 4,
+							"syntax": "Packages/TodoReview/TodoReview.hidden-tmLanguage",
+							"todo_results": true,
+							"word_wrap": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "mod/nodes/pc.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 719,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								75,
+								75
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/Lua/Lua.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
 					"type": "text"
 				}
 			]
@@ -1234,7 +1418,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 39.0
+		"height": 27.0
 	},
 	"input":
 	{
@@ -1260,7 +1444,7 @@
 		"cols":
 		[
 			0.0,
-			0.52109757126,
+			0.586819727891,
 			1.0
 		],
 		"rows":
@@ -1272,7 +1456,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 190.0
+		"height": 151.0
 	},
 	"output.find_results":
 	{
@@ -1436,7 +1620,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 339.0,
+	"side_bar_width": 210.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

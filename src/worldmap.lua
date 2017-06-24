@@ -61,7 +61,11 @@ function map.draw()
 		if region.style then
 			if region.style.fill then
 				love.graphics.setColor(region.style.fill)
+			else
+				love.graphics.setColor(32, 40, 48, 255)
 			end
+		else
+			love.graphics.setColor(32, 40, 48, 255)
 		end
 		love.graphics.draw(region.renderer.mesh, 0,0)
 		love.graphics.setColor(255, 255, 255, 255)

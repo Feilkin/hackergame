@@ -13,17 +13,17 @@ function utils.filter(t, f)
 end
 
 function utils.ifilter(t, f)
-	local o = {}
+	for i = #t, 1, -1 do
+		local v = t[i]
 
-	for k, v in ipairs(t) do
-		if f(v, k) then o[k] = v end
+		if not f(v, i) then
+			table.remove(t, i)
+		end
 	end
 
-	return o
+	return t
 end
 
-
--- TODO: move these to utils.lua or something
 function utils.iextend (a, b)
 	if (not b) or #b == 0 then return a end
 
