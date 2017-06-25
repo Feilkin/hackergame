@@ -63,12 +63,8 @@ function game:loadNodes()
 end
 
 function game:init()
-	self.gui = { -- load GUI resources here, rest will be initialized on enter
-		fonts = {
-			medium = love.graphics.newFont("res/tewi-medium-11.bdf", 11),
-			bold   = love.graphics.newFont("res/tewi-bold-11.bdf",   11),
-		},
-	}
+	nk.init()
+	self:resetUI()
 
 	worldmap.init()
 
@@ -76,6 +72,32 @@ function game:init()
 
 	self:loadScripts()
 	self:loadNodes()
+end
+
+function game:resetUI()
+	nk.shutdown()
+	nk.init()
+	self.gui = { -- load GUI resources here, rest will be initialized on enter
+		fonts = {
+			medium = love.graphics.newFont("res/tewi-medium-11.bdf", 11),
+			bold   = love.graphics.newFont("res/tewi-bold-11.bdf",   11),
+		},
+	}
+
+
+
+	local lovesvg = require "lovesvg"
+	local logoABM = lovesvg.loadSVG("res/logo_abm.svg", { depth = 1, discard_distance = 0.0001 })
+	self.gui.logoABM = logoABM
+
+
+
+
+
+	local style = love.filesystem.load("mod/skin.lua")
+	nk.stylePush(style())
+
+	self:clearUI()
 end
 
 function game:clearUI()
@@ -105,20 +127,7 @@ function game:enter(previous, ...)
 	end
 	local success = love.filesystem.write("nodes.lua", inspect(nodes))
 	self.nodes = nodes
-
-	local lovesvg = require "lovesvg"
-	local logoABM = lovesvg.loadSVG("res/logo_abm.svg", { depth = 1, discard_distance = 0.0001 })
-	self.gui.logoABM = logoABM
 	-- ends here
-
-	nk.init()
-	nk.stylePush { -- TODO: make a style (load from mod/?)
-		['font'] = self.gui.fonts.medium,
-		['window'] = {
-			['background'] = '#2d2d2daa',
-			['fixed background'] = '#2d2d2daa',
-		}
-	}
 end
 
 function game:leave()
@@ -149,7 +158,7 @@ function game:uiRegionList()
 	local cw, ch = love.graphics.getDimensions()
 	local ww, wh, wp = 150,300, 6
 
-	if nk.treePush('node', 'REGIONS') then
+	if nk.treePush('tab', 'REGIONS') then
 		nk.layoutRow('dynamic', 24, 1)
 		nk.edit('field', self.gui.region_list_filter)
 
@@ -188,7 +197,7 @@ function game:uiNodeList()
 	local cw, ch = love.graphics.getDimensions()
 	local ww, wh, wp = 150,300, 6
 
-	if nk.treePush('node', 'NODES') then
+	if nk.treePush('tab', 'NODES') then
 		nk.layoutRow('dynamic', 24, 1)
 		nk.edit('field', self.gui.node_list_filter)
 
@@ -384,15 +393,22 @@ do
 	end
 end
 
+function game:uiDebugTools()
+	if nk.treePush('tab','DEBUG') then
+		if nk.button('reset UI') then
+			self.__reset_ui = true
+		end
+		nk.treePop()
+	end
+end
+
 function game:uiLeftSideBar()
 	local ww, wh = love.graphics.getDimensions()
 
 	if nk.windowBegin('TOOLS', 6,6, 200, wh - 12, 'border', 'title', 'minimizable') then
-		if nk.treePush('tab', 'SEARCH') then
-			self:uiRegionList()
-			self:uiNodeList()
-			nk.treePop()
-		end
+		self:uiRegionList()
+		self:uiNodeList()
+		self:uiDebugTools()
 		nk.treePop()
 	end
 	nk.windowEnd()
@@ -415,6 +431,12 @@ function game:update(dt)
 	end
 
 	-- UI
+
+	if self.__reset_ui then
+		self:resetUI()
+		self.__reset_ui = nil
+	end
+
 	nk.frameBegin()
 
 	self:uiLeftSideBar()
