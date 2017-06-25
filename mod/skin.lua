@@ -470,7 +470,7 @@ return {
 			]]
 		},
 		['fixed background'] = '#2d2d2daa',
-		['background'] = '#2d2d2daa',
+		['background'] = '#00000000',
 		['border color'] = color.highlight,
 		--[[
 		['popup border color'] = color,

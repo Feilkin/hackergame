@@ -66,5 +66,11 @@ function utils.choose(t)
 	return t[love.math.random(1, #t)]
 end
 
+function utils.requireShards(t, c)
+	for i, n in ipairs(t) do
+		local s = require(n)
+		s(c)
+	end
+end
 
 return utils
