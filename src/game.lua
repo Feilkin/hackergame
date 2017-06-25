@@ -3,6 +3,7 @@
 
 local nk = require "nuklear"
 local Camera = require "hump.camera"
+local inspect = require "inspect"
 
 local utils = require "utils"
 local worldmap = require "worldmap"
@@ -102,14 +103,21 @@ function game:enter(previous, ...)
 	for i = 1, 4 do
 		table.insert(nodes, self.nodeGenerators["pc"]())
 	end
-	local inspect = require "inspect"
 	local success = love.filesystem.write("nodes.lua", inspect(nodes))
 	self.nodes = nodes
+
+	local lovesvg = require "lovesvg"
+	local logoABM = lovesvg.loadSVG("res/logo_abm.svg", { depth = 1, discard_distance = 0.0001 })
+	self.gui.logoABM = logoABM
 	-- ends here
 
 	nk.init()
 	nk.stylePush { -- TODO: make a style (load from mod/?)
 		['font'] = self.gui.fonts.medium,
+		['window'] = {
+			['background'] = '#2d2d2daa',
+			['fixed background'] = '#2d2d2daa',
+		}
 	}
 end
 
@@ -125,9 +133,9 @@ function game:uiOutput()
 	local cw, ch = love.graphics.getDimensions()
 	local ww, wh, wp = 400,300, 6
 	if nk.windowBegin('OUTPUT',
-	                           (cw - ww - wp),(ch - wh - wp), ww,wh,
+	                           (cw - ww - wp),wp, ww,wh,
 	                           'border', 'title', 'movable', 'scalable',
-	                           'scrollbar') then
+	                           'scrollbar', 'minimizable') then
 		nk.layoutRow('dynamic', 13, 1)
 
 		for i, line in ipairs(self.gui.log) do
@@ -141,14 +149,12 @@ function game:uiRegionList()
 	local cw, ch = love.graphics.getDimensions()
 	local ww, wh, wp = 150,300, 6
 
-	if nk.windowBegin('REGIONS',
-	                           wp,wp, ww,wh,
-	                           'border', 'title', 'movable') then
+	if nk.treePush('node', 'REGIONS') then
 		nk.layoutRow('dynamic', 24, 1)
 		nk.edit('field', self.gui.region_list_filter)
 
 		nk.layoutRow('dynamic', wh - 28*2, 1)
-		nk.groupBegin('region list', 'scrollbar')
+		nk.groupBegin('region list', 'scrollbar', 'border')
 		do
 			nk.layoutRow('dynamic', 24, 1)
 
@@ -173,8 +179,8 @@ function game:uiRegionList()
 			end
 		end
 		nk.groupEnd()
+		nk.treePop()
 	end
-	nk.windowEnd()
 end
 
 
@@ -182,14 +188,12 @@ function game:uiNodeList()
 	local cw, ch = love.graphics.getDimensions()
 	local ww, wh, wp = 150,300, 6
 
-	if nk.windowBegin('NODES',
-	                           wp,300 + wp * 3, ww,wh,
-	                           'border', 'title', 'movable') then
+	if nk.treePush('node', 'NODES') then
 		nk.layoutRow('dynamic', 24, 1)
 		nk.edit('field', self.gui.node_list_filter)
 
 		nk.layoutRow('dynamic', wh - 28*2, 1)
-		nk.groupBegin('node list', 'scrollbar')
+		nk.groupBegin('node list', 'scrollbar', 'border')
 		do
 			nk.layoutRow('dynamic', 24, 1)
 
@@ -213,8 +217,8 @@ function game:uiNodeList()
 			end
 		end
 		nk.groupEnd()
+		nk.treePop()
 	end
-	nk.windowEnd()
 end
 
 function game:uiEditors()	
@@ -282,10 +286,7 @@ do
 			if nk.windowBegin(node.uuid, node.name,
 			                  node.position.x - (cx - cw/2), node.position.y - (cy - ch/2),
 			                  200, calculate_height(node),
-			                  'border', 'title') then
-				nk.windowSetPosition(
-					(node.position.x - cx) * cs + cw/2,
-					(node.position.y - cy) * cs + ch/2)
+			                  'border', 'title', 'minimizable') then
 
 				nk.layoutRow('dynamic', 24, 1)
 
@@ -375,12 +376,32 @@ do
 				end
 			end
 
+			nk.windowSetPosition(
+				(node.position.x - cx) * cs + cw/2,
+				(node.position.y - cy) * cs + ch/2)
 			nk.windowEnd()
 		end
 	end
 end
 
+function game:uiLeftSideBar()
+	local ww, wh = love.graphics.getDimensions()
+
+	if nk.windowBegin('TOOLS', 6,6, 200, wh - 12, 'border', 'title', 'minimizable') then
+		if nk.treePush('tab', 'SEARCH') then
+			self:uiRegionList()
+			self:uiNodeList()
+			nk.treePop()
+		end
+		nk.treePop()
+	end
+	nk.windowEnd()
+end
+
 function game:update(dt)
+	love.window.setTitle(string.format("[%d FPS; Camera: (%0.2f, %0.2f) %0.2f]",
+		love.timer.getFPS(), self.camera.x, self.camera.y, self.camera.scale))
+
 	-- make sure the world is in the screen
 	do
 		local cx, cy = self.camera:position()
@@ -396,8 +417,7 @@ function game:update(dt)
 	-- UI
 	nk.frameBegin()
 
-	self:uiRegionList()
-	self:uiNodeList()
+	self:uiLeftSideBar()
 	self:uiOutput()
 	self:uiEditors()
 	self:uiNodes()
@@ -464,6 +484,12 @@ function game:draw()
 	self.camera:attach()
 		worldmap.draw()
 		self:drawNodes()
+
+		love.graphics.push()
+		love.graphics.translate(100, 300)
+		self.gui.logoABM:draw()
+		love.graphics.pop()
+
 	self.camera:detach()
 
 	nk.draw()
