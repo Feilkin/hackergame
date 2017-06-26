@@ -13,7 +13,7 @@ return function (game)
 			nk.layoutRow('dynamic', 13, 1)
 
 			for i, line in ipairs(self.gui.log) do
-				nk.label(line)
+				nk.label(table.concat(line, "\t"))
 			end
 		end
 		nk.windowEnd()
@@ -115,7 +115,7 @@ return function (game)
 
 				end
 
-					nk.comboboxEnd()
+				nk.comboboxEnd()
 
 				nk.layoutRow('dynamic', wh - 98, 1)
 				nk.edit('box', editor)
@@ -123,7 +123,7 @@ return function (game)
 				nk.layoutRow('dynamic', 24, 1)
 				if nk.button('SAVE') then
 					editor.target.script = editor.value
-					editor.close = true
+					--editor.close = true
 				end
 			else
 				editor.close = true
@@ -134,7 +134,7 @@ return function (game)
 		-- remove closed editors
 		self.gui.editors = utils.ifilter(self.gui.editors, function (v)
 				if v.close then 
-					self.gui.editors[v.target] = false
+					self.gui.editors[v.target] = nil
 				end
 				return not v.close
 			end )
@@ -180,6 +180,8 @@ return function (game)
 
 						if not node.running then
 							if nk.button('RUN SCRIPT') then
+								self.vm:runScript(node.script)
+								node.running = true
 							end
 						else
 							if nk.button('KILL SCRIPT') then

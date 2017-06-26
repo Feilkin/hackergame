@@ -7,6 +7,7 @@ local inspect = require "inspect"
 
 local utils = require "utils"
 local worldmap = require "worldmap"
+local VM = require "vm"
 
 local game = {}
 
@@ -37,16 +38,6 @@ function game:resetUI()
 		},
 	}
 
-
-
-	local lovesvg = require "lovesvg"
-	local logoABM = lovesvg.loadSVG("res/logo_abm.svg", { depth = 1, discard_distance = 0.0001 })
-	self.gui.logoABM = logoABM
-
-
-
-
-
 	local style = love.filesystem.load("mod/skin.lua")
 	nk.stylePush(style())
 
@@ -74,6 +65,20 @@ function game:enter(previous, ...)
 	self:clearUI()
 
 	-- TODO: this is for debugging
+	self.vm = VM.init()
+
+	self.vm.env["print"] = function (...)
+		table.insert(self.gui.log, {...})
+	end
+	
+	self.vm.errorHandler = function (...)
+		table.insert(self.gui.log, {...})
+	end
+
+	for k, v in pairs(require "mod.lib.core.utils") do
+		self.vm.env[k] = v
+	end
+
 	local nodes = {}
 	for i = 1, 4 do
 		table.insert(nodes, self.nodeGenerators["pc"]())
@@ -94,6 +99,8 @@ end
 function game:update(dt)
 	love.window.setTitle(string.format("[%d FPS; Camera: (%0.2f, %0.2f) %0.2f]",
 		love.timer.getFPS(), self.camera.x, self.camera.y, self.camera.scale))
+
+	self.vm:update(dt)
 
 	-- make sure the world is in the screen
 	do
@@ -183,12 +190,6 @@ function game:draw()
 	self.camera:attach()
 		worldmap.draw()
 		self:drawNodes()
-
-		love.graphics.push()
-		love.graphics.translate(100, 300)
-		self.gui.logoABM:draw()
-		love.graphics.pop()
-
 	self.camera:detach()
 
 	nk.draw()

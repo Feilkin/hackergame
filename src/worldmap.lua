@@ -11,7 +11,7 @@ local map = {
 -- helper function used for pre-rendering the world map
 local recursive_render
 do
-	local render_options = { depth = 4 }
+	local render_options = { depth = 4, discrad_distance = 0.001 }
 	local minx, miny, maxx, maxy = math.huge,math.huge, 0,0
 
 	recursive_render = function (obj)
@@ -23,11 +23,12 @@ do
 				map.regions[obj.attributes.id] = obj
 			end
 
-
-			if obj.renderer.AABB[1] < minx then minx = obj.renderer.AABB[1] end
-			if obj.renderer.AABB[2] < miny then miny = obj.renderer.AABB[2] end
-			if obj.renderer.AABB[3] > maxx then maxx = obj.renderer.AABB[3] end
-			if obj.renderer.AABB[4] > maxy then maxy = obj.renderer.AABB[4] end
+			if obj.renderer.AABB then
+				if obj.renderer.AABB[1] < minx then minx = obj.renderer.AABB[1] end
+				if obj.renderer.AABB[2] < miny then miny = obj.renderer.AABB[2] end
+				if obj.renderer.AABB[3] > maxx then maxx = obj.renderer.AABB[3] end
+				if obj.renderer.AABB[4] > maxy then maxy = obj.renderer.AABB[4] end
+			end
 		end
 
 		if obj.children then
@@ -58,17 +59,7 @@ end
 function map.draw()
 	-- only draw the regions in map.regions
 	for i, region in ipairs(map.regions) do
-		if region.style then
-			if region.style.fill then
-				love.graphics.setColor(region.style.fill)
-			else
-				love.graphics.setColor(32, 40, 48, 255)
-			end
-		else
-			love.graphics.setColor(32, 40, 48, 255)
-		end
-		love.graphics.draw(region.renderer.mesh, 0,0)
-		love.graphics.setColor(255, 255, 255, 255)
+		region:draw()
 	end
 end
 

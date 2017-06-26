@@ -352,8 +352,7 @@ local _PathRenderer = {
 	draw = function (self)
 		if self.mesh then
 			love.graphics.draw(self.mesh, 0,0)
-		end
-		--elseif self.polygon then
+		elseif self.polygon then
 			local old_color = { love.graphics.getColor() }
 			love.graphics.setColor(0, 0, 0, 128)
 			love.graphics.line(self.polygon)
@@ -368,7 +367,7 @@ local _PathRenderer = {
 			love.graphics.setColor(0, 255, 0, 128)
 			love.graphics.points(self.polygon[1], self.polygon[2])
 			love.graphics.setColor(old_color)
-		--end
+		end
 	end,
 
 	-- The actual render functions
@@ -736,10 +735,10 @@ local _RectRenderer = {
 -- @param obj a SVG[rect] obj
 local function _rectRenderer(obj)
 	local r = {
-		x = obj.attributes.x,
-		y = obj.attributes.y,
-		width = obj.attributes.width,
-		height = obj.attributes.height
+		x = tonumber(obj.attributes.x),
+		y = tonumber(obj.attributes.y),
+		width = tonumber(obj.attributes.width),
+		height = tonumber(obj.attributes.height)
 	}
 	setmetatable(r, { __index = _RectRenderer, __call = r.render })
 	return r
