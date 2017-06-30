@@ -1,6 +1,8 @@
 local utils = require "utils"
 local templar = require "templar"
 
+local worldmap = require "worldmap"
+
 local scriptFolder = "mod/scripts"
 local nodeFolder   = "mod/nodes"
 
@@ -38,6 +40,12 @@ return function(game)
 		end)
 		templar.registerGenerator("uuid", function ()
 			return function () return utils.uuid() end
+		end)
+		templar.registerGenerator("pointOnLand", function ()
+			return function () 
+				local x, y = worldmap.randomPoint()
+				return { x = x, y = y }
+			end
 		end)
 
 		for i, file in ipairs(files) do

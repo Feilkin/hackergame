@@ -80,11 +80,13 @@ function game:enter(previous, ...)
 	end
 
 	local nodes = {}
-	for i = 1, 4 do
+	for i = 1, 128 do
 		table.insert(nodes, self.nodeGenerators["pc"]())
 	end
 	local success = love.filesystem.write("nodes.lua", inspect(nodes))
 	self.nodes = nodes
+
+	love.graphics.setBackgroundColor(11, 34, 40)
 	-- ends here
 end
 
@@ -94,6 +96,28 @@ end
 
 function game:resume()
 
+end
+
+
+function game:updateWires()
+	local wires = {}
+
+	for i, node in ipairs(self.nodes) do
+		for j, socket in ipairs(node.sockets) do
+			if socket.connected then
+				local x1, y1 = self.camera:cameraCoords(node.position.x,
+				                                        node.position.y)
+				local x2, y2 = self.camera:cameraCoords(socket.connected.node.position.x,
+					                                    socket.connected.node.position.y)
+				table.insert(wires, {
+					x1, y1,
+					x2, y2
+				})
+			end
+		end
+	end
+
+	self.gui.wires = wires
 end
 
 function game:update(dt)
@@ -129,6 +153,9 @@ function game:update(dt)
 	self:uiNodes()
 
 	nk.frameEnd()
+
+	self:updateWires()
+	
 end
 
 function game:drawWires()
@@ -136,16 +163,7 @@ function game:drawWires()
 	love.graphics.setLineJoin("none")
 
 	for i, wire in ipairs(self.gui.wires) do
-		love.graphics.line(
-			wire[1][1],
-			wire[1][2] + wire[1][4] / 2,
-			wire[1][1] - 24,
-			wire[1][2] + wire[1][4] / 2,
-			wire[2][1] - 24,
-			wire[2][2] + wire[2][4] / 2,
-			wire[2][1],
-			wire[2][2] + wire[2][4] / 2
-			)
+		love.graphics.line(wire)
 	end
 
 
@@ -166,7 +184,7 @@ function game:drawNewWire()
 		end
 
 		local mx, my = love.mouse.getPosition()
-		local wb = self.gui.wires[self.gui.new_wire.start.socket]
+		local wb = self.gui.sockets[self.gui.new_wire.start.socket]
 		love.graphics.line(wb[1] + 18, wb[2] + wb[4] / 2 , mx, my)
 		love.graphics.setColor(255, 255, 255, 255)
 	end
@@ -175,12 +193,13 @@ function game:drawNewWire()
 end
 
 function game:drawNodes()
+	local cs = self.camera.scale
 	love.graphics.setColor(0, 255, 255, 200)
 
 	for i, node in ipairs(self.nodes) do
 		love.graphics.circle("fill",
 			node.position.x, node.position.y,
-			4, 32)
+			1 + 2/cs, 32)
 	end
 
 	love.graphics.setColor(255, 255, 255, 255)
@@ -192,8 +211,8 @@ function game:draw()
 		self:drawNodes()
 	self.camera:detach()
 
-	nk.draw()
 	self:drawWires()
+	nk.draw()
 	self:drawNewWire()
 end
 

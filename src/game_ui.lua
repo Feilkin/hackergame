@@ -3,6 +3,7 @@ local utils = require "utils"
 local worldmap = require "worldmap"
 
 return function (game)
+
 	function game:uiOutput()
 		local cw, ch = love.graphics.getDimensions()
 		local ww, wh, wp = 400,300, 6
@@ -151,7 +152,7 @@ return function (game)
 			local cw, ch = love.graphics.getDimensions()
 			local cs = self.camera.scale
 
-			self.gui.wires = {}
+			self.gui.sockets = {}
 			if self.gui.new_wire then self.gui.new_wire.hover = nil end
 
 			if not self.gui.nodes then return end
@@ -197,7 +198,7 @@ return function (game)
 
 						if self.gui.new_wire then
 							if (self.gui.new_wire.start.socket == socket) then
-								self.gui.wires[socket] = { nk.widgetBounds() }
+								self.gui.sockets[socket] = { nk.widgetBounds() }
 							else
 								if nk.widgetIsHovered() then
 									if socket.type == self.gui.new_wire.start.socket.type then
@@ -209,20 +210,8 @@ return function (game)
 							end
 						end
 
-						if socket.connected then
-							if not self.gui.wires[socket] then
-								self.gui.wires[socket] = { nk.widgetBounds() }
-							end
+						self.gui.sockets[socket] = { nk.widgetBounds() }
 
-							if self.gui.wires[socket.connected.socket] then
-								self.gui.wires[#self.gui.wires + 1] = {
-									self.gui.wires[socket],
-									self.gui.wires[socket.connected.socket],
-									start_node = node,
-									end_node = socket.connected.node,
-								}
-							end
-						end
 						local label = socket.name
 						if socket.connected then
 							label = label .. ' <' .. socket.connected.node.name .. '-' .. socket.connected.socket.name .. '>'
@@ -244,8 +233,6 @@ return function (game)
 							    	start = {
 							    		socket = socket,
 							    		node = node } }
-
-								self.gui.wires[socket] = { nk.widgetBounds() }
 							end
 						end
 						nk.styleSetFont(self.gui.fonts.medium)

@@ -343,6 +343,7 @@ local _PathRenderer = {
 
 			local mesh = love.graphics.newMesh(vertices)
 			mesh:setDrawMode("triangles")
+			self.triangles = triangles
 			self.mesh = mesh
 			self.AABB = { minx, miny, maxx, maxy }
 			return mesh

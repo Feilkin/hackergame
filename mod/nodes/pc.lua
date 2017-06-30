@@ -7,10 +7,7 @@ return {
 	uuid = uuid(),
 	scriptable = true,
 
-	position = {
-		x = range(1, 1000, 10),
-		y = range(1, 500, 10)
-	}, -- TODO: place to regions
+	position = pointOnLand(), -- TODO: place to regions
 
 	sockets = extend(
 		amount(1, 4, function ()

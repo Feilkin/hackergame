@@ -4,6 +4,8 @@
 
 local lovesvg = require "lovesvg"
 
+local utils = require "utils"
+
 local map = {
 	regions = {},
 }
@@ -50,6 +52,16 @@ function map.init()
 	                                      -- and calculates AABB for the world
 
 	map.AABB = AABB
+end
+
+
+--- Returns a random point on land
+function map.randomPoint()
+	local region = utils.choose(map.regions)
+	local triangle = utils.choose(region.renderer.triangles)
+
+	return (triangle[1] + triangle[3] + triangle[5]) / 3,
+	       (triangle[2] + triangle[4] + triangle[6]) / 3
 end
 
 function map.update(dt)
