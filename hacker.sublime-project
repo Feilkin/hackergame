@@ -19,8 +19,8 @@
         {
             "working_dir": "${project_path}",
             "name": "build and run project with love",
-            "cmd": ["love", "."],
-            "shell": "true"
+            "cmd": ["love", "--console", "."],
+            "shell": true
         }
     ]
 }

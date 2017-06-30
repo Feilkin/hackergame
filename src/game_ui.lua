@@ -113,7 +113,6 @@ return function (game)
 							editor.value = script.script
 						end
 					end
-
 				end
 
 				nk.comboboxEnd()
@@ -124,22 +123,39 @@ return function (game)
 				nk.layoutRow('dynamic', 24, 1)
 				if nk.button('SAVE') then
 					editor.target.script = editor.value
-					--editor.close = true
+					print("what")
+					editor.close = true
+					print("whot")
 				end
 			else
-				editor.close = true
+				if not nk.windowIsCollapsed(editor.uuid) then
+					editor.close = true
+				end
 			end
 			nk.windowEnd()
 		end
 
 		-- remove closed editors
+		--[[ -- using reversed numeric loop
 		self.gui.editors = utils.ifilter(self.gui.editors, function (v)
-				if v.close then 
-					self.gui.editors[v.target] = nil
-				end
-				return not v.close
-			end )
+			if v.close then 
+				self.gui.editors[v.target] = nil
+			end
+			return not v.close
+		end )
+		--]] -- using le old stupid method
+		local t = {}
+		for i, e in ipairs(self.gui.editors) do
+			if not e.close then
+				table.insert(t, e)
+				t[e] = true
+			else
+				nk.windowClose(e.uuid)
+			end
+		end
+		self.gui.editors = t
 
+		print("whut")
 	end
 
 	do
@@ -237,9 +253,7 @@ return function (game)
 						nk.styleSetFont(self.gui.fonts.medium)
 					end
 				else
-					print("hmm? " .. node.uuid)
 					if not nk.windowIsCollapsed(node.uuid) then
-						print("closing window " .. node.uuid)
 						self.gui.nodes[node] = nil
 					end
 				end
@@ -251,6 +265,9 @@ return function (game)
 			end
 
 			utils.ifilter(self.gui.nodes, function (v)
+				if not self.gui.nodes[v] then
+					nk.windowClose(v.uuid)
+				end
 				return self.gui.nodes[v]
 			end)
 		end

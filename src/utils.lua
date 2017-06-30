@@ -18,9 +18,10 @@ function utils.ifilter(t, f)
 
 		if not f(v, i) then
 			table.remove(t, i)
+
+			if i == 1 then break end
 		end
 	end
-
 	return t
 end
 

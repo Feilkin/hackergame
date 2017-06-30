@@ -4,6 +4,9 @@
 local Gamestate
 
 function love.load ()
+	-- seed random
+	love.math.setRandomSeed(os.time())
+
 	-- create required folders if they don't exists
 	local save_folders = {
 		"save"
