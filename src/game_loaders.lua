@@ -1,3 +1,5 @@
+local bitser = require "bitser"
+
 local utils = require "utils"
 local templar = require "templar"
 
@@ -24,7 +26,7 @@ return function(game)
 		self.scripts = scripts
 	end
 
-	function game:loadNodes()
+	function game:loadNodeGenerators()
 		local nodeGenerators = {}
 		local files = utils.recursiveFind("%.lua$", nodeFolder)
 		-- table.sort(files)
@@ -59,5 +61,23 @@ return function(game)
 		end
 
 		self.nodeGenerators = nodeGenerators
+	end
+
+	function game:loadNodes()
+		local contents, size = love.filesystem.read("save/nodes")
+
+		if contents then
+			self.nodes = bitser.loads(contents)
+			self:log("loaded nodes from 'save/nodes")
+		end
+	end
+
+	function game:saveNodes()
+		local success = love.filesystem.write("save/nodes",
+		                                      bitser.dumps(self.nodes))
+
+		if success then
+			self:log("saved nodes to 'save/nodes'")
+		end
 	end
 end

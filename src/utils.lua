@@ -24,11 +24,14 @@ function utils.ifilter(t, f)
 	return t
 end
 
-function utils.iextend (a, b)
+function utils.iextend (a, ...)
+	local b = {...}
 	if (not b) or #b == 0 then return a end
 
-	for i, v in ipairs(b) do
-		a[#a + 1] = v
+	for _, c in ipairs(b) do
+		for i, v in ipairs(c) do
+			a[#a + 1] = v
+		end
 	end
 
 	return a

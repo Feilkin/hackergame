@@ -161,8 +161,7 @@ return function (game)
 				if nk.windowBegin(node.uuid, node.name,
 				                  node.position.x - (cx - cw/2), node.position.y - (cy - ch/2),
 				                  200, calculate_height(node),
-				                  'border', 'title', 'minimizable') then
-
+				                  'border', 'title', 'closable') then
 					nk.layoutRow('dynamic', 24, 1)
 
 					if node.cpu then
@@ -180,7 +179,7 @@ return function (game)
 						end
 
 						if not node.running then
-							if nk.button('RUN SCRIPT') then
+							if nk.button('RUN SCRIPT') and (node.script ~= "") then
 								self.vm:runScript(node.script)
 								node.running = true
 							end
@@ -237,6 +236,12 @@ return function (game)
 						end
 						nk.styleSetFont(self.gui.fonts.medium)
 					end
+				else
+					print("hmm? " .. node.uuid)
+					if not nk.windowIsCollapsed(node.uuid) then
+						print("closing window " .. node.uuid)
+						self.gui.nodes[node] = nil
+					end
 				end
 
 				nk.windowSetPosition(
@@ -244,13 +249,25 @@ return function (game)
 					(node.position.y - cy) * cs + ch/2)
 				nk.windowEnd()
 			end
+
+			utils.ifilter(self.gui.nodes, function (v)
+				return self.gui.nodes[v]
+			end)
 		end
 	end
 
 	function game:uiDebugTools()
 		if nk.treePush('tab','DEBUG') then
-			if nk.button('reset UI') then
+			if nk.button('RESET UI') then
 				self.__reset_ui = true
+			end
+
+			if nk.button('SAVE NODES') then
+				self:saveNodes()
+			end
+
+			if nk.button('LOAD NODES') then
+				self:loadNodes()
 			end
 			nk.treePop()
 		end

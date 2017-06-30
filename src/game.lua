@@ -16,6 +16,10 @@ utils.requireShards({
 	"game_ui",
 	}, game)
 
+function game:log(...)
+	table.insert(self.gui.log, {...})
+end
+
 function game:init()
 	nk.init()
 	self:resetUI()
@@ -25,7 +29,7 @@ function game:init()
 	self.camera = Camera(0, 0)
 
 	self:loadScripts()
-	self:loadNodes()
+	self:loadNodeGenerators()
 end
 
 function game:resetUI()
@@ -105,14 +109,27 @@ function game:updateWires()
 	for i, node in ipairs(self.nodes) do
 		for j, socket in ipairs(node.sockets) do
 			if socket.connected then
+				local wire = {}
 				local x1, y1 = self.camera:cameraCoords(node.position.x,
 				                                        node.position.y)
-				local x2, y2 = self.camera:cameraCoords(socket.connected.node.position.x,
-					                                    socket.connected.node.position.y)
-				table.insert(wires, {
-					x1, y1,
-					x2, y2
-				})
+
+				if self.gui.nodes[node] and self.gui.sockets[socket] then
+					-- draw a line from the socket to the node
+					local sx, sy, sw, sh = unpack(self.gui.sockets[socket])
+					utils.iextend(wire, {
+						sx, sy + sh / 2,
+						sx - 24, sy + sh / 2
+						})
+				end
+
+				utils.iextend(wire, { x1, y1 })
+
+				local x2, y2 = self.camera:cameraCoords(
+				                           socket.connected.node.position.x,
+					                       socket.connected.node.position.y)
+				utils.iextend(wire, { x2, y2 })
+
+				table.insert(wires, wire)
 			end
 		end
 	end
@@ -199,7 +216,7 @@ function game:drawNodes()
 	for i, node in ipairs(self.nodes) do
 		love.graphics.circle("fill",
 			node.position.x, node.position.y,
-			1 + 2/cs, 32)
+			1 + 2/cs, 24 + cs * 8)
 	end
 
 	love.graphics.setColor(255, 255, 255, 255)
@@ -228,11 +245,36 @@ function game:keyreleased(key, scancode)
 	nk.keyreleased(key, scancode)
 end
 
+function game:getNodeAt(x, y)
+	local r = 24 + self.camera.scale * 8
+
+	for i, node in ipairs(self.nodes) do
+		if ((x - node.position.x)^2 + (y - node.position.y)^2) < r then
+			return node
+		end
+	end
+end
+
 function game:mousepressed(x, y, button, istouch)
 	if not nk.mousepressed(x, y, button, istouch) then
 		if button == 1 then
-			self.camera.drag_map = true
-			love.mouse.setGrabbed(true)
+			-- check if player clicked on a node
+			local wx, wy = self.camera:worldCoords(x, y)
+			local node = self:getNodeAt(wx, wy)
+			if node then
+				if self.gui.nodes[node] then
+					utils.ifilter(self.gui.nodes, function (v)
+						return v ~= node
+					end)
+					self.gui.nodes[node] = false
+				else
+					table.insert(self.gui.nodes, node)
+					self.gui.nodes[node] = true
+				end
+			else
+				self.camera.drag_map = true
+				love.mouse.setGrabbed(true)
+			end
 		end
 	end
 end
