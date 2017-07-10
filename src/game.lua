@@ -183,7 +183,6 @@ function game:drawWires()
 		love.graphics.line(wire)
 	end
 
-
 	love.graphics.setLineJoin(old_join)
 end
 
@@ -246,7 +245,7 @@ function game:keyreleased(key, scancode)
 end
 
 function game:getNodeAt(x, y)
-	local r = 24 + self.camera.scale * 8
+	local r = (1 + 2/self.camera.scale)^2
 
 	for i, node in ipairs(self.nodes) do
 		if ((x - node.position.x)^2 + (y - node.position.y)^2) < r then
@@ -266,7 +265,7 @@ function game:mousepressed(x, y, button, istouch)
 					utils.ifilter(self.gui.nodes, function (v)
 						return v ~= node
 					end)
-					self.gui.nodes[node] = false
+					self.gui.nodes[node] = nil
 				else
 					table.insert(self.gui.nodes, node)
 					self.gui.nodes[node] = true

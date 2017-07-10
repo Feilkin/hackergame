@@ -1,0 +1,3 @@
+[submodule "lib/lovesvg"]
+	path = lib/lovesvg
+	url = https://github.com/Feilkin/lovesvg.git
