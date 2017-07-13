@@ -158,12 +158,51 @@ return function (game)
 		print("whut")
 	end
 
+	function game:uiNodes()
+		local cx, cy = self.camera:position()
+		local cw, ch = love.graphics.getDimensions()
+		local cs = self.camera.scale
+
+		for i, node in ipairs(self.gui.nodes) do
+			if nk.windowBegin(node.uuid, node.ip,
+			                  node.position.x - (cx - cw/2), node.position.y - (cy - ch/2),
+			                  200, 96,
+			                  'border', 'title', 'closable') then
+				nk.layoutRow("dynamic", 24, 1)
+
+				if nk.button("NETWORK " .. node.network.name) then
+
+				end
+
+				if nk.button("NODE " .. node.name) then
+
+				end
+			else
+				if not nk.windowIsCollapsed(node.uuid) then
+					self.gui.nodes[node] = nil
+				end
+			end
+
+			nk.windowSetPosition(
+				(node.position.x - cx) * cs + cw/2,
+				(node.position.y - cy) * cs + ch/2)
+			nk.windowEnd()
+		end
+
+		utils.ifilter(self.gui.nodes, function (v)
+			if not self.gui.nodes[v] then
+				nk.windowClose(v.uuid)
+			end
+			return self.gui.nodes[v]
+		end)
+	end
+
 	do
 		local function calculate_height(node)
 			return 64 + (node.cpu and 28 or 0) + (node.scriptable and 28  * 2 or 0) + #node.sockets * 28
 		end
 
-		function game:uiNodes()
+		function game:uiNodesOld()
 			local cx, cy = self.camera:position()
 			local cw, ch = love.graphics.getDimensions()
 			local cs = self.camera.scale
@@ -196,7 +235,7 @@ return function (game)
 
 						if not node.running then
 							if nk.button('RUN SCRIPT') and (node.script ~= "") then
-								self.vm:runScript(node.script)
+								self:runScript(node.script)
 								node.running = true
 							end
 						else

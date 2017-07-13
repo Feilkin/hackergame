@@ -4,16 +4,17 @@
 local nk = require "nuklear"
 local Camera = require "hump.camera"
 local inspect = require "inspect"
+local lovesvg = require "lovesvg"
 
 local utils = require "utils"
 local worldmap = require "worldmap"
-local VM = require "vm"
 
 local game = {}
 
 utils.requireShards({
 	"game_loaders",
 	"game_ui",
+	"game_logic"
 	}, game)
 
 function game:log(...)
@@ -25,8 +26,9 @@ function game:init()
 	self:resetUI()
 
 	worldmap.init()
+	self:setupSystems()
 
-	self.camera = Camera(0, 0)
+	self.camera = Camera(950 / 2, 620 / 2)
 
 	self:loadScripts()
 	self:loadNodeGenerators()
@@ -40,7 +42,13 @@ function game:resetUI()
 			medium = love.graphics.newFont("res/tewi-medium-11.bdf", 11),
 			bold   = love.graphics.newFont("res/tewi-bold-11.bdf",   11),
 		},
+		pointers = {
+			cursor = love.mouse.newCursor("res/cursor.png", 2, 6),
+			pointinghand = love.mouse.newCursor("res/pointinghand.png", 8, 3)
+		},
 	}
+
+	love.mouse.setCursor(self.gui.pointers.cursor)
 
 	local style = love.filesystem.load("mod/skin.lua")
 	nk.stylePush(style())
@@ -68,29 +76,16 @@ end
 function game:enter(previous, ...)
 	self:clearUI()
 
-	-- TODO: this is for debugging
-	self.vm = VM.init()
-
-	self.vm.env["print"] = function (...)
-		table.insert(self.gui.log, {...})
-	end
-	
-	self.vm.errorHandler = function (...)
-		table.insert(self.gui.log, {...})
-	end
-
-	for k, v in pairs(require "mod.lib.core.utils") do
-		self.vm.env[k] = v
-	end
-
 	local nodes = {}
 	for i = 1, 128 do
-		table.insert(nodes, self.nodeGenerators["pc"]())
+		local node = self.nodeGenerators["pc"]()
+		table.insert(nodes, node)
+		self.world:addEntity(node)
 	end
 	local success = love.filesystem.write("nodes.lua", inspect(nodes))
 	self.nodes = nodes
 
-	love.graphics.setBackgroundColor(11, 34, 40)
+	love.graphics.setBackgroundColor(21, 23, 27)
 	-- ends here
 end
 
@@ -138,10 +133,11 @@ function game:updateWires()
 end
 
 function game:update(dt)
+	love.mouse.setCursor(self.gui.pointers.cursor)
 	love.window.setTitle(string.format("[%d FPS; Camera: (%0.2f, %0.2f) %0.2f]",
 		love.timer.getFPS(), self.camera.x, self.camera.y, self.camera.scale))
 
-	self.vm:update(dt)
+	self.world:update(dt)
 
 	-- make sure the world is in the screen
 	do
@@ -164,10 +160,26 @@ function game:update(dt)
 
 	nk.frameBegin()
 
+
+	-- check if we are hovering over a node
+	do
+		for _, node in ipairs(self.nodes) do
+			node.is_hovered = nil
+		end
+
+		local mx, my = self.camera:mousePosition()
+		local node = self:getNodeAt(mx, my)
+
+		if node then
+			love.mouse.setCursor(self.gui.pointers.pointinghand)
+			node.is_hovered = true
+		end
+	end
+
 	self:uiLeftSideBar()
 	self:uiOutput()
 	self:uiEditors()
-	self:uiNodes()
+	self:uiNodesOld()
 
 	nk.frameEnd()
 
@@ -210,9 +222,13 @@ end
 
 function game:drawNodes()
 	local cs = self.camera.scale
-	love.graphics.setColor(0, 255, 255, 200)
 
 	for i, node in ipairs(self.nodes) do
+		if node.is_hovered or self.gui.nodes[node] then
+			love.graphics.setColor(255, 255, 255, 200)
+		else
+			love.graphics.setColor(102, 217, 239, 200)    
+		end
 		love.graphics.circle("fill",
 			node.position.x, node.position.y,
 			1 + 2/cs, 24 + cs * 8)

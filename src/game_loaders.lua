@@ -49,6 +49,24 @@ return function(game)
 				return { x = x, y = y }
 			end
 		end)
+		templar.registerGenerator("randomip", function ()
+			return function () 
+				return string.format("%d.%d.%d.%d",
+					love.math.random(1, 255),
+					love.math.random(0, 255),
+					love.math.random(0, 255),
+					love.math.random(0, 255))
+			end
+		end)
+		templar.registerGenerator("network", function ()
+			local i = 0
+			return function ()
+				i = i + 1 
+				return {
+					name = string.format("net-%d", i)
+				}
+			end
+		end)
 
 		for i, file in ipairs(files) do
 			local name = file:match(".*/([^/]+)%.lua$")

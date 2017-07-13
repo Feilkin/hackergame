@@ -5,6 +5,8 @@ return {
 	type = "pc",
 	name = devicename(),
 	uuid = uuid(),
+	ip = randomip(),
+	network = network(),
 	scriptable = true,
 
 	position = pointOnLand(), -- TODO: place to regions

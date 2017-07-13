@@ -1,4 +1,5 @@
 -- the "virtual machine" that simulates the nodes
+-- saved for future references
 
 local vm = {}
 
@@ -6,9 +7,10 @@ local _Thread = {
 	
 }
 
-function vm:wrapThread(script)
-	local chunk = loadstring(script, self.env.__name)
-	setfenv(chunk, self.env)
+function vm:wrapThread(node)
+	local env = self:createEnv(node)
+	local chunk = loadstring(node.script, node.name .. "-script")
+	setfenv(chunk, env)
 
 	return function()
 		local success, res = xpcall(chunk, self.errorHandler)
@@ -17,8 +19,8 @@ function vm:wrapThread(script)
 	end
 end
 
-function vm:newThread(script)
-	local wrapped = self:wrapThread(script)
+function vm:newThread(node)
+	local wrapped = self:wrapThread(node)
 	local routine = coroutine.create(wrapped)
 
 	local t = {
@@ -26,26 +28,42 @@ function vm:newThread(script)
 		script = script,   -- script as string
 		routine = routine, -- baked coroutine
 		wants = {},        -- interface?
+		node = node,
 	}
 
 	return setmetatable(t, { __index = _Thread })
 end
 
-function vm.errorHandler(...)
-	print(...)
+function vm:createEnv(node)
+	local env = {
+		node = node
+	}
+	env.print = function (...)
+		table.insert(self.game.gui.log, {...})
+	end
+
+	for k, v in pairs(require "mod.lib.core.utils") do
+		env[k] = v
+	end
 end
 
-function vm.init(env)
+function vm.init(game)
 	local t = {
-		env = env or {},
+		game = game,
 		pool = {},
 		threads = {},
 	}
+
+	function vm.errorHandler(...)
+		table.insert(game.gui.log, {...})
+	end
 	return setmetatable(t, { __index = vm })
 end
 
-function vm:runScript(script)
-	local thread = self:newThread(script)
+function vm:runScript(node)
+	if not node.script then return end
+
+	local thread = self:newThread(node)
 	table.insert(self.pool, thread)
 end
 
@@ -83,5 +101,25 @@ function vm:update(dt)
 	end
 end
 
+-- networking
+vm.net = {
+	networks = { -- keep track of all the networks
+		{
+			name = "internet",
+			netmask = "0.0.0.0",
+		}
+	}
+}
+
+function vm.net.aton(str)
+	local a, b, c, d = str:match("^(%d+)%.(%d+)%.(%d+)%.(%d+)$")
+	a, b, c, d = tonumber(a), tonumber(b), tonumber(c), tonumber(d)
+
+	return { a, b, c, d }
+end
+
+function vm.net.ntoa(tbl)
+	return string.format("%d.%d.%d.%d", tbl[1], tbl[2], tbl[3], tbl[4])
+end
 
 return vm
